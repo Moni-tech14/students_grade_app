@@ -1,0 +1,36 @@
+<?php
+header("Content-Type: application/json");
+
+$servername = "your_host";
+$username = "your_username";
+$password = "your_password";
+$dbname = "your_database";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die(json_encode(["success" => false, "message" => "Connection failed: " . $conn->connect_error]));
+}
+
+if (isset($_GET['student_id'])) {
+    $student_id = $conn->real_escape_string($_GET['student_id']);
+    $sql = "SELECT * FROM grades WHERE student_id = '$student_id'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $grades = [];
+        while($row = $result->fetch_assoc()) {
+            $grades[] = $row;
+        }
+        echo json_encode(["success" => true, "grades" => $grades]);
+    } else {
+        echo json_encode(["success" => false, "message" => "No grades found"]);
+    }
+} else {
+    echo json_encode(["success" => false, "message" => "Invalid request"]);
+}
+
+$conn->close();
+?>
